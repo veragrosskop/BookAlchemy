@@ -11,7 +11,9 @@ class Author(db.Model):
     name: Mapped[str] = mapped_column(db.String(80), unique=True)
     birth_date: Mapped[date]
     date_of_death: Mapped[date | None]
-    books: Mapped[list["Book"]] = relationship(back_populates="author")
+    books: Mapped[list["Book"]] = relationship(
+        back_populates="author", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
         return f"<Author {self.name}>"

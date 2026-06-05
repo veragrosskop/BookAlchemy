@@ -155,6 +155,29 @@ def add_book():
     return render_template("add_book.html", authors=authors)
 
 
+@app.route("/book/<int:book_id>/delete", methods=["POST"])
+def delete_book(book_id):
+    book = db.session.get(Book, book_id)
+
+    if not book:
+        flash("Book not found.", "error")
+        return redirect(url_for("index"))
+
+    author = book.author
+    db.session.delete(book)
+
+    db.session.flush()
+    if len(author.books) == 0:
+        db.session.delete(author)
+        db.session.flush()
+
+    db.session.commit()
+
+    flash(f"Book '{book.title}' deleted successfully.", "success")
+
+    return redirect(url_for("index"))
+
+
 @app.route("/", methods=["GET"])
 def index():
 
