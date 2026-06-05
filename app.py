@@ -3,7 +3,7 @@ import datetime
 from flask import Flask, render_template, request, flash, redirect, url_for
 import os
 
-from sqlalchemy import select, asc, desc
+from sqlalchemy import select, asc, desc, or_
 
 from data_models import db, Author, Book
 
@@ -157,11 +157,24 @@ def add_book():
 
 @app.route("/", methods=["GET"])
 def index():
+
+    # sorting initialization
     sort = request.args.get("sort", "title")
     direction = request.args.get("direction", "asc")
+    # paginqation initialization
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 5, type=int)
+
+    search = request.args.get("search", "").strip()
     query = select(Book).join(Author)
+
+    if search:
+        query = query.where(
+            or_(
+                Book.title.ilike(f"%{search}%"),
+                Author.name.ilike(f"%{search}%"),
+            )
+        )
 
     # sort by column
     if sort == "author":
@@ -182,7 +195,9 @@ def index():
         query = query.order_by(asc(column))
 
     # pagination
-    total_books = db.session.scalar(select(db.func.count(Book.id)).select_from(Book))
+    total_books = db.session.scalar(
+        select(db.func.count()).select_from(query.subquery())
+    )
 
     books = db.session.scalars(
         query.limit(per_page).offset((page - 1) * per_page)
@@ -197,6 +212,7 @@ def index():
         page=page,
         per_page=per_page,
         total_pages=total_pages,
+        search=search,
     )
 
 

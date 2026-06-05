@@ -27,7 +27,7 @@
 
         <div class="search-bar">
             <form method="GET" action="/">
-                <input type="text" name="q" placeholder="Search books...">
+                <input type="text" name="search" value="{{ search or '' }}" >
                 <button type="submit">Search</button>
             </form>
         </div>

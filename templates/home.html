@@ -4,6 +4,8 @@
   <h1>Books</h1>
 
   <form method="GET" action="/">
+         <input type="hidden" name="search" value="{{ search }}">
+            <input type="hidden" name="page" value=1>
         <label>Sort by:</label>
 
         <select name="sort" onchange="this.form.submit()">
@@ -42,9 +44,11 @@
             {% endfor %}
         </select>
 
-      <div class="pagination">
+
+  </form>
+    <div class="pagination">
         {% if page > 1 %}
-            <a href="/?page={{ page - 1 }}&sort={{ sort }}&direction={{ direction }}">
+            <a href="/?page={{ page - 1 }}&sort={{ sort }}&direction={{ direction }}&search={{ search }}">
                 ⬅ Previous
             </a>
         {% endif %}
@@ -52,12 +56,11 @@
        <span>Page {{ page }} of {{ total_pages }}</span>
 
         {% if page < total_pages %}
-            <a href="/?page={{ page + 1 }}&sort={{ sort }}&direction={{ direction }}">
+            <a href="/?page={{ page + 1 }}&sort={{ sort }}&direction={{ direction }}&search={{ search }}">
                 Next ➡
             </a>
         {% endif %}
-        </div>
-  </form>
+    </div>
 
   {% for book in books %}
       <div class="book">
