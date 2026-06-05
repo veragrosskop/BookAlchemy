@@ -198,6 +198,9 @@ def index():
     total_books = db.session.scalar(
         select(db.func.count()).select_from(query.subquery())
     )
+    if total_books == 0 and search:
+        flash("No books found for that search.", "error")
+        return redirect(url_for("index"))
 
     books = db.session.scalars(
         query.limit(per_page).offset((page - 1) * per_page)

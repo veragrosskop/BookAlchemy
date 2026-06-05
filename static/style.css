@@ -60,3 +60,11 @@
     text-decoration: none;
     color: blue;
 }
+
+.error {
+    color: red;
+}
+
+.message {
+    color: yellow;
+}
