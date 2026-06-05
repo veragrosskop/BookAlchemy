@@ -32,6 +32,31 @@
             </option>
 
         </select>
+
+        <label>Per Page:</label>
+        <select name="per_page" onchange="this.form.submit()">
+            {% for n in [5,10,15,20,25] %}
+                <option value="{{ n }}" {% if per_page == n %}selected{% endif %}>
+                    {{ n }}
+                </option>
+            {% endfor %}
+        </select>
+
+      <div class="pagination">
+        {% if page > 1 %}
+            <a href="/?page={{ page - 1 }}&sort={{ sort }}&direction={{ direction }}">
+                ⬅ Previous
+            </a>
+        {% endif %}
+
+       <span>Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+            <a href="/?page={{ page + 1 }}&sort={{ sort }}&direction={{ direction }}">
+                Next ➡
+            </a>
+        {% endif %}
+        </div>
   </form>
 
   {% for book in books %}

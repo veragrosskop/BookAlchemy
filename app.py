@@ -159,9 +159,11 @@ def add_book():
 def index():
     sort = request.args.get("sort", "title")
     direction = request.args.get("direction", "asc")
-
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 5, type=int)
     query = select(Book).join(Author)
 
+    # sort by column
     if sort == "author":
         column = Author.name
     elif sort == "year":
@@ -171,14 +173,31 @@ def index():
     else:
         column = Book.title
 
+    # direction ordering
     if direction == "desc":
-        books = db.session.scalars(query.order_by(desc(column))).all()
+        query = query.order_by(desc(column))
     elif direction == "asc":
-        books = db.session.scalars(query.order_by(asc(column))).all()
+        query = query.order_by(asc(column))
     else:
-        books = db.session.scalars(query.order_by(asc(column))).all()
+        query = query.order_by(asc(column))
 
-    return render_template("home.html", books=books, sort=sort, direction=direction)
+    # pagination
+    total_books = db.session.scalar(select(db.func.count(Book.id)).select_from(Book))
+
+    books = db.session.scalars(
+        query.limit(per_page).offset((page - 1) * per_page)
+    ).all()
+    total_pages = (total_books + per_page - 1) // per_page
+
+    return render_template(
+        "home.html",
+        books=books,
+        sort=sort,
+        direction=direction,
+        page=page,
+        per_page=per_page,
+        total_pages=total_pages,
+    )
 
 
 # # run only once
