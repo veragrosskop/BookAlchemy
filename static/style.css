@@ -1,0 +1,51 @@
+.navbar {
+    display: flex;
+    gap: 15px;
+    padding: 10px;
+    background: #222;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+}
+
+.container {
+    padding: 20px;
+}
+
+.search-bar {
+    margin-left: auto;
+}
+
+.book {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    padding: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.book img {
+    width: 120px;
+    height: auto;
+    flex-shrink: 0;
+}
+
+.book-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.book-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 8px 0;
+}
+
+.book-details p {
+    margin: 2px 0;
+    color: #555;
+    font-size: 14px;
+}
+

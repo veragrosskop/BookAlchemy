@@ -1,10 +1,9 @@
 import datetime
 
 from flask import Flask, render_template, request, flash, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy, query
 import os
 
-from sqlalchemy import select
+from sqlalchemy import select, asc, desc
 
 from data_models import db, Author, Book
 
@@ -37,43 +36,23 @@ def add_author():
         # validate author
         if not author_name:
             flash("Author name is required.", "error")
-            return render_template(
-                "add_author.html",
-                name=author_name,
-                birthdate=request.form.get("birthdate"),
-                date_of_death=request.form.get("date_of_death"),
-            )
+            return render_template("add_author.html", form=request.form)
         existing_author = db.session.scalar(
             select(Author).where(Author.name == author_name)
         )
         if existing_author:
             flash(f"Author {author_name} already exists.", "error")
-            return render_template(
-                "add_author.html",
-                name=author_name,
-                birthdate=request.form.get("birthdate"),
-                date_of_death=request.form.get("date_of_death"),
-            )
+            return render_template("add_author.html", form=request.form)
         if not author_birth_date:
             flash("Author birth date is required.", "error")
-            return render_template(
-                "add_author.html",
-                name=author_name,
-                birthdate=request.form.get("birthdate"),
-                date_of_death=request.form.get("date_of_death"),
-            )
+            return render_template("add_author.html", form=request.form)
         try:
             author_birth_date = datetime.datetime.strptime(
                 author_birth_date, "%Y-%m-%d"
             ).date()
         except ValueError:
             flash("Date of birth must be in YYYY-MM-DD format.", "error")
-            return render_template(
-                "add_author.html",
-                name=author_name,
-                birthdate=request.form.get("birthdate"),
-                date_of_death=request.form.get("date_of_death"),
-            )
+            return render_template("add_author.html", form=request.form)
         if author_date_of_death:
             try:
                 author_date_of_death = datetime.datetime.strptime(
@@ -81,20 +60,10 @@ def add_author():
                 ).date()
             except ValueError:
                 flash("Date of death must be in YYYY-MM-DD format.", "error")
-                return render_template(
-                    "add_author.html",
-                    name=author_name,
-                    birthdate=request.form.get("birthdate"),
-                    date_of_death=request.form.get("date_of_death"),
-                )
+                return render_template("add_author.html", form=request.form)
             if author_date_of_death < author_birth_date:
                 flash("Date of death cannot be before date of birth.", "error")
-                return render_template(
-                    "add_author.html",
-                    name=author_name,
-                    birthdate=request.form.get("birthdate"),
-                    date_of_death=request.form.get("date_of_death"),
-                )
+                return render_template("add_author.html", form=request.form)
         else:
             author_date_of_death = None
 
@@ -111,6 +80,107 @@ def add_author():
     return render_template("add_author.html")
 
 
+@app.route("/add_book", methods=["GET", "POST"])
+def add_book():
+    authors = db.session.scalars(select(Author)).all()
+
+    if request.method == "POST":
+        isbn = request.form.get("isbn", "").strip()
+        title = request.form.get("title", "").strip()
+        publication_year = request.form.get("publication_year", "").strip()
+        author_id = request.form.get("author_id", "").strip()
+
+        # validate book
+        if not isbn:
+            flash("ISBN is required.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+        if len(isbn) != 13:
+            flash("ISBN must be 13 digits.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+        if not title:
+            flash("Title is required.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+
+        if not author_id:
+            flash("Author is required.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+
+        if not publication_year:
+            flash("Publication year is required.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+        try:
+            publication_year = int(publication_year)
+        except ValueError:
+            flash("Publication year must be a number.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+
+        author_birth_date = db.session.scalar(
+            select(Author.birth_date).where(Author.id == author_id)
+        )
+        author_date_of_death = db.session.scalar(
+            select(Author.date_of_death).where(Author.id == author_id)
+        )
+        if author_date_of_death and publication_year > author_date_of_death:
+            flash("Book cannot be published after author's death.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+        if author_birth_date and publication_year < author_birth_date:
+            flash("Book cannot be published before author's birth.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+
+        existing_book = db.session.scalar(select(Book).where(Book.isbn == isbn))
+        if existing_book:
+            flash("A book with this ISBN already exists.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+
+        author = db.session.get(Author, int(author_id))
+        if not author:
+            flash("Selected author does not exist.", "error")
+            return render_template("add_book.html", authors=authors, form=request.form)
+
+        book = Book(
+            isbn=isbn,
+            title=title,
+            publication_year=publication_year,
+            author_id=author.id,
+        )
+
+        db.session.add(book)
+        db.session.commit()
+
+        flash(f"Book '{title}' added successfully!", "success")
+        return redirect(url_for("add_book"))
+
+    # GET request: show form
+    authors = db.session.scalars(select(Author)).all()
+    return render_template("add_book.html", authors=authors)
+
+
+@app.route("/", methods=["GET"])
+def index():
+    sort = request.args.get("sort", "title")
+    direction = request.args.get("direction", "asc")
+
+    query = select(Book).join(Author)
+
+    if sort == "author":
+        column = Author.name
+    elif sort == "year":
+        column = Book.publication_year
+    elif sort == "title":
+        column = Book.title
+    else:
+        column = Book.title
+
+    if direction == "desc":
+        books = db.session.scalars(query.order_by(desc(column))).all()
+    elif direction == "asc":
+        books = db.session.scalars(query.order_by(asc(column))).all()
+    else:
+        books = db.session.scalars(query.order_by(asc(column))).all()
+
+    return render_template("home.html", books=books, sort=sort, direction=direction)
+
+
 # # run only once
 # with app.app_context():
-#   db.create_all()
+#     db.create_all()

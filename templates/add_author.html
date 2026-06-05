@@ -1,25 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-</head>
-<body>
+{% extends "base.html" %}
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <div class="{{ category }}">
-        {{ message }}
-      </div>
-    {% endfor %}
-  {% endif %}
-{% endwith %}
+{% block content %}
 
 <form action="/add_author" method="POST">
     <label for="name">Author Name:</label>
-    <input type="text" id="name" name="name" value="{{name or ''}}"required><br><br>
+    <input type="text" id="name" name="name" value="{{name or ''}}" required><br><br>
 
     <label for="birthdate" >Birthdate:</label>
     <input type="date" id="birthdate" name="birthdate" value="{{ birthdate or '' }}" required><br><br>
@@ -28,5 +13,4 @@
     <input type="submit" value="Add Author">
 </form>
 
-</body>
-</html>
+{% endblock %}

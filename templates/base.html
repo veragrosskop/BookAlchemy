@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library App</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="{{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="navbar">
+        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('add_book') }}">Add Book</a>
+        <a href="{{ url_for('add_author') }}">Add Author</a>
+
+
+        <div class="search-bar">
+            <form method="GET" action="/">
+                <input type="text" name="q" placeholder="Search books...">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div>
+
+</body>
+</html>

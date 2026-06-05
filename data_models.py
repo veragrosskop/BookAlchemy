@@ -1,7 +1,7 @@
 from datetime import date
 
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 db = SQLAlchemy()
 
@@ -11,6 +11,7 @@ class Author(db.Model):
     name: Mapped[str] = mapped_column(db.String(80), unique=True)
     birth_date: Mapped[date]
     date_of_death: Mapped[date | None]
+    books: Mapped[list["Book"]] = relationship(back_populates="author")
 
     def __repr__(self):
         return f"<Author {self.name}>"
@@ -23,6 +24,7 @@ class Book(db.Model):
     id: Mapped[int] = mapped_column(primary_key=True)
     isbn: Mapped[str] = mapped_column(db.String(13), unique=True)
     author_id: Mapped[int] = mapped_column(db.ForeignKey("author.id"))
+    author: Mapped[Author] = relationship(back_populates="books")
     title: Mapped[str] = mapped_column(db.String(100))
     publication_year: Mapped[int]
 

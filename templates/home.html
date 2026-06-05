@@ -1,16 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  </head>
-  <body>
+{% extends "base.html" %}
 
-    {% for book in books %}
-    <div> <h3>{{ book.title }}</h3>
-    </div>
-    {% endfor %}
+{% block content %}
+  <h1>Books</h1>
 
-  </body>
-</html>
+  <form method="GET" action="/">
+        <label>Sort by:</label>
+
+        <select name="sort" onchange="this.form.submit()">
+            <option value="title" {% if sort == "title" %}selected{% endif %}>
+                Title
+            </option>
+
+            <option value="author" {% if sort == "author" %}selected{% endif %}>
+                Author
+            </option>
+
+            <option value="year" {% if sort == "year" %}selected{% endif %}>
+                Year
+            </option>
+        </select>
+
+        <label>Direction:</label>
+
+        <select name="direction" onchange="this.form.submit()">
+            <option value="asc" {% if direction == "asc" %}selected{% endif %}>
+                Ascending
+            </option>
+
+            <option value="desc" {% if direction == "desc" %}selected{% endif %}>
+                Descending
+            </option>
+
+        </select>
+  </form>
+
+  {% for book in books %}
+      <div class="book">
+          <img
+              src="https://covers.openlibrary.org/b/isbn/{{ book.isbn }}-M.jpg"
+              alt="Cover for {{ book.title }}"
+              onerror="this.style.display='none'"
+          >
+        <div class="book-info">
+              <h3 class="book-title">{{ book.title }}</h3>
+
+            <div class="book-details">
+                <p>Author: {{ book.author.name }}</p>
+                <p>Publication Year: {{ book.publication_year }}</p>
+                <p>ISBN: {{ book.isbn }}</p>
+            </div>
+        </div>
+      </div>
+  {% endfor %}
+
+{% endblock %}
