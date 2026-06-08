@@ -14,7 +14,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = (
     f"sqlite:///{os.path.join(basedir, 'data/library.sqlite')}"
 )
 db.init_app(app)
-app.config["SECRET_KEY"] = "your-secret-key"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
 
 
 @app.route("/add_author", methods=["GET", "POST"])
