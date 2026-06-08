@@ -82,6 +82,10 @@ def add_author():
 
 @app.route("/add_book", methods=["GET", "POST"])
 def add_book():
+    """
+    Adds a book to the database by retrieving information from the request form.
+    :return:
+    """
     authors = db.session.scalars(select(Author)).all()
 
     if request.method == "POST":
@@ -157,6 +161,11 @@ def add_book():
 
 @app.route("/book/<int:book_id>/delete", methods=["POST"])
 def delete_book(book_id):
+    """
+    Detele a book from the database.
+    :param book_id:
+    :return:
+    """
     book = db.session.get(Book, book_id)
 
     if not book:
@@ -180,11 +189,15 @@ def delete_book(book_id):
 
 @app.route("/", methods=["GET"])
 def index():
+    """
+    Home page with search functionality and pagination.
+    :return:
+    """
 
     # sorting initialization
     sort = request.args.get("sort", "title")
     direction = request.args.get("direction", "asc")
-    # paginqation initialization
+    # pagination initialization
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 5, type=int)
 
