@@ -48,8 +48,8 @@ project/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/library-management-system.git
-cd library-management-system
+git clone https://github.com/veragrosskop/BookAlchemy.git
+cd BookAlchemy
 ```
 
 ### 2. Create a virtual environment
@@ -78,19 +78,6 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Configure environment variables
-
-Set a secret key:
-
-```bash
-export SECRET_KEY="your-secret-key"
-```
-
-Windows PowerShell:
-
-```powershell
-$env:SECRET_KEY="your-secret-key"
-```
 
 ### 5. Run the application
 
