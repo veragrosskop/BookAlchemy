@@ -3,6 +3,7 @@
 A lightweight web application built with Flask and SQLAlchemy for managing a library's collection of books and authors. 
 The application provides a clean interface for adding, searching, sorting, and deleting records while enforcing data integrity through server-side validation.
 
+![Screenshot](docs/screenshot.png)
 ## Features
 
 *  Manage books and authors
