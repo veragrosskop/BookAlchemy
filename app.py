@@ -13,7 +13,7 @@ app = Flask(__name__)
 basedir = Path(__file__).resolve().parent
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{basedir / 'data' / 'library.sqlite'}"
 db.init_app(app)
-app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY")
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
 
 
 @app.route("/add_author", methods=["GET", "POST"])
@@ -123,10 +123,10 @@ def add_book():
         author_date_of_death = db.session.scalar(
             select(Author.date_of_death).where(Author.id == author_id)
         )
-        if author_date_of_death and publication_year > author_date_of_death:
+        if author_date_of_death and publication_year > author_date_of_death.year:
             flash("Book cannot be published after author's death.", "error")
             return render_template("add_book.html", authors=authors, form=request.form)
-        if author_birth_date and publication_year < author_birth_date:
+        if author_birth_date and publication_year < author_birth_date.year:
             flash("Book cannot be published before author's birth.", "error")
             return render_template("add_book.html", authors=authors, form=request.form)
 
